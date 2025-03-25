@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math RPG Battle</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Start Menu -->
+        <div id="start-menu">
+            <h1>MATH RPG BATTLE</h1>
+            <div class="menu-description">Choose a math operation to practice:</div>
+            
+            <div class="operation-buttons">
+                <button id="addition-btn" class="menu-btn">Addition</button>
+                <button id="subtraction-btn" class="menu-btn">Subtraction</button>
+                <button id="multiplication-btn" class="menu-btn">Multiplication</button>
+                <button id="division-btn" class="menu-btn">Division</button>
+            </div>
+            
+            <div class="difficulty-selector">
+                <div class="menu-description">Difficulty:</div>
+                <div class="difficulty-buttons">
+                    <button id="easy-btn" class="difficulty-btn selected">Easy</button>
+                    <button id="medium-btn" class="difficulty-btn">Medium</button>
+                    <button id="hard-btn" class="difficulty-btn">Hard</button>
+                </div>
+            </div>
+            
+            <div id="submenu-container" class="hidden">
+                <div id="multiplication-submenu" class="submenu hidden">
+                    <div class="menu-description">Choose a times table:</div>
+                    <div class="times-table-buttons">
+                        <button class="times-table-btn" data-table="1">1×</button>
+                        <button class="times-table-btn" data-table="2">2×</button>
+                        <button class="times-table-btn" data-table="3">3×</button>
+                        <button class="times-table-btn" data-table="4">4×</button>
+                        <button class="times-table-btn" data-table="5">5×</button>
+                        <button class="times-table-btn" data-table="6">6×</button>
+                        <button class="times-table-btn" data-table="7">7×</button>
+                        <button class="times-table-btn" data-table="8">8×</button>
+                        <button class="times-table-btn" data-table="9">9×</button>
+                        <button class="times-table-btn" data-table="10">10×</button>
+                        <button class="times-table-btn" data-table="11">11×</button>
+                        <button class="times-table-btn" data-table="12">12×</button>
+                        <button class="times-table-btn" data-table="0">All Tables</button>
+                    </div>
+                </div>
+                
+                <div id="division-submenu" class="submenu hidden">
+                    <div class="menu-description">Choose a division table:</div>
+                    <div class="times-table-buttons">
+                        <button class="division-table-btn" data-table="1">÷1</button>
+                        <button class="division-table-btn" data-table="2">÷2</button>
+                        <button class="division-table-btn" data-table="3">÷3</button>
+                        <button class="division-table-btn" data-table="4">÷4</button>
+                        <button class="division-table-btn" data-table="5">÷5</button>
+                        <button class="division-table-btn" data-table="6">÷6</button>
+                        <button class="division-table-btn" data-table="7">÷7</button>
+                        <button class="division-table-btn" data-table="8">÷8</button>
+                        <button class="division-table-btn" data-table="9">÷9</button>
+                        <button class="division-table-btn" data-table="10">÷10</button>
+                        <button class="division-table-btn" data-table="11">÷11</button>
+                        <button class="division-table-btn" data-table="12">÷12</button>
+                        <button class="division-table-btn" data-table="0">All Tables</button>
+                    </div>
+                </div>
+                
+                <button id="back-btn" class="menu-btn">Back</button>
+            </div>
+        </div>
+        
+        <!-- Game Scene -->
+        <div id="scene-container" class="hidden"></div>
+        
+        <!-- Game UI -->
+        <div id="ui-overlay" class="hidden">
+            <div class="top-info">
+                <div id="level-display">Level: <span id="level">1</span></div>
+                <div id="timer-display">Time: <span id="timer">3:00</span></div>
+            </div>
+            
+            <div id="health-bars">
+                <div class="character-info">
+                    <div class="name">HERO</div>
+                    <div class="health-bar-container">
+                        <div id="hero-health-bar" class="health-bar"></div>
+                    </div>
+                    <div id="hero-health-text">50/50</div>
+                </div>
+                
+                <div class="character-info">
+                    <div class="name">MONSTER</div>
+                    <div class="health-bar-container">
+                        <div id="monster-health-bar" class="health-bar monster-bar"></div>
+                    </div>
+                    <div id="monster-health-text">30/30</div>
+                </div>
+            </div>
+            
+            <div id="problem-container">
+                <div id="problem-text">5 + 3 = ?</div>
+                <label for="answer-input" class="sr-only">Enter your answer</label>
+                <input type="number" id="answer-input" autofocus aria-labelledby="problem-text">
+                <button id="submit-btn">ATTACK!</button>
+            </div>
+            
+            <div id="message-display"></div>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="game-over" class="hidden">
+            <h1>GAME OVER</h1>
+            <p>You reached Level <span id="final-level">1</span></p>
+            <p>Your score: <span id="final-score">0</span></p>
+            
+            <div id="name-entry">
+                <label for="player-name">Enter your name:</label>
+                <input type="text" id="player-name" maxlength="15" placeholder="Your Name">
+                <button id="submit-score-btn">Submit Score</button>
+            </div>
+            
+            <div id="high-scores">
+                <h2>High Scores</h2>
+                <div id="scores-list"></div>
+            </div>
+            
+            <div class="game-over-buttons">
+                <button id="restart-btn">Play Again</button>
+                <button id="menu-btn">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
+    <script src="mathProblems.js"></script>
+    <script src="game.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
