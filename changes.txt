@@ -1,0 +1,61 @@
+# Math Game Timer and Score Tracking - Change List
+Date: March 25, 2025
+Time: 5:59 PM (Australia/Sydney, UTC+11:00)
+
+## Overview
+Added a 2-minute countdown timer and correct answer tracking to the math RPG battle game.
+
+## Files Modified
+
+### 1. game.js
+- Added timer properties to the MathRPGGame class constructor (5:35 PM, March 25, 2025):
+  - `this.timeRemaining = 120` (2 minutes in seconds)
+  - `this.timerInterval = null`
+  - `this.correctAnswers = 0`
+
+- Added timer methods (5:37 PM, March 25, 2025):
+  - `startTimer()`: Initializes and starts the countdown timer
+  - `updateTimerDisplay()`: Updates the timer UI with formatted time
+  - `timeUp()`: Handles game over when timer reaches zero
+
+- Modified existing methods (5:40 PM, March 25, 2025):
+  - `startGame()`: Reset timer and correct answers counter, initialize timer
+  - `submitAnswer()`: Increment correct answers counter when answer is correct
+  - `gameOver()`: Display correct answers count, clear timer
+  - `restartGame()`: Reset timer and correct answers counter
+  - `returnToMainMenu()`: Clear timer interval
+  - `collectPowerUp()`: Added time power-up functionality (+30 seconds)
+  
+- Changed timer duration from 5 minutes to 2 minutes (5:58 PM, March 25, 2025):
+  - Updated `this.timeRemaining = 300` to `this.timeRemaining = 120` in constructor
+  - Updated `this.timeRemaining = 300` to `this.timeRemaining = 120` in startGame method
+  - Updated `this.timeRemaining = 300` to `this.timeRemaining = 120` in restartGame method
+
+### 2. styles.css
+- Added timer warning animation (5:29 PM, March 25, 2025):
+  ```css
+  @keyframes time-warning-flash {
+      0% { color: #ffcc00; }
+      50% { color: #ff0000; }
+      100% { color: #ffcc00; }
+  }
+
+  .time-warning {
+      animation: time-warning-flash 0.5s ease-in-out infinite;
+  }
+  ```
+
+## Functional Changes
+1. Timer starts at 2:00 when game begins (Changed from 5:00 at 5:58 PM, March 25, 2025)
+2. Timer counts down every second (Implemented at 5:37 PM, March 25, 2025)
+3. Timer display flashes red when under 30 seconds (Implemented at 5:29 PM, March 25, 2025)
+4. Game ends when timer reaches 0:00 (Implemented at 5:38 PM, March 25, 2025)
+5. Correct answers are tracked and displayed on game over screen (Implemented at 5:40 PM, March 25, 2025)
+6. Time power-up adds 30 seconds to the timer (Implemented at 5:42 PM, March 25, 2025)
+7. Timer and score reset when starting a new game (Implemented at 5:43 PM, March 25, 2025)
+
+## Testing Notes
+- Timer functionality works correctly (Tested at 5:47 PM, March 25, 2025)
+- Score tracking increments with each correct answer (Tested at 5:48 PM, March 25, 2025)
+- Game over screen displays level reached and correct answers (Tested at 5:49 PM, March 25, 2025)
+- Time power-up correctly adds time to the countdown (Tested at 5:50 PM, March 25, 2025)

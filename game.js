@@ -15,6 +15,9 @@ class MathRPGGame {
         this.selectedOperation = 'addition';
         this.selectedTable = 0;
         this.difficulty = 'easy'; // Default difficulty
+        this.timeRemaining = 120; // 2 minutes in seconds
+        this.timerInterval = null;
+        this.correctAnswers = 0; // Track correct answers
         
         // Three.js components
         this.scene = null;
@@ -165,10 +168,87 @@ class MathRPGGame {
         this.problemGenerator.setOperationType(this.selectedOperation, this.selectedTable, this.difficulty);
         console.log('Operation type set in problem generator with difficulty:', this.difficulty);
         
+        // Reset game state
+        this.timeRemaining = 120; // 2 minutes in seconds
+        this.correctAnswers = 0;
+        
+        // Initialize the timer
+        this.updateTimerDisplay();
+        this.startTimer();
+        
         // Initialize the game
         this.isGameStarted = true;
         console.log('Initializing game...');
         this.init();
+    }
+    
+    /**
+     * Start the timer
+     */
+    startTimer() {
+        // Clear any existing timer
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+        }
+        
+        // Start a new timer that updates every second
+        this.timerInterval = setInterval(() => {
+            // Decrement time remaining
+            this.timeRemaining--;
+            
+            // Update the timer display
+            this.updateTimerDisplay();
+            
+            // Check if time is up
+            if (this.timeRemaining <= 0) {
+                this.timeUp();
+            }
+        }, 1000);
+    }
+    
+    /**
+     * Update the timer display
+     */
+    updateTimerDisplay() {
+        // Calculate minutes and seconds
+        const minutes = Math.floor(this.timeRemaining / 60);
+        const seconds = this.timeRemaining % 60;
+        
+        // Format the time as MM:SS
+        const formattedTime = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        
+        // Update the timer display
+        document.getElementById('timer').textContent = formattedTime;
+        
+        // Add warning class if time is running low (less than 30 seconds)
+        if (this.timeRemaining <= 30) {
+            document.getElementById('timer-display').classList.add('time-warning');
+        } else {
+            document.getElementById('timer-display').classList.remove('time-warning');
+        }
+    }
+    
+    /**
+     * Handle time up
+     */
+    timeUp() {
+        // Clear the timer
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        
+        // End the game
+        this.isGameOver = true;
+        
+        // Update final level and score display
+        document.getElementById('final-level').textContent = this.level;
+        document.getElementById('final-score').textContent = this.correctAnswers;
+        
+        // Show game over screen
+        const gameOverScreen = document.getElementById('game-over');
+        gameOverScreen.classList.remove('hidden');
+        gameOverScreen.style.display = 'block'; // Force show with display: block
     }
     
     /**
@@ -201,6 +281,12 @@ class MathRPGGame {
         this.isGameOver = false;
         this.level = 1;
         this.heroHealth = this.heroMaxHealth;
+        
+        // Clear the timer
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
         
         // If Three.js is initialized, remove the renderer
         if (this.renderer) {
@@ -784,6 +870,9 @@ class MathRPGGame {
             // Increment consecutive correct counter
             this.consecutiveCorrect++;
             
+            // Increment correct answers counter
+            this.correctAnswers++;
+            
             // Calculate damage
             let damage = this.problemGenerator.calculateDamage(result.isCorrect, result.timeTaken);
             console.log('Base damage calculated:', damage, 'Time taken:', result.timeTaken);
@@ -927,8 +1016,10 @@ class MathRPGGame {
                 // Double damage is applied in the submitAnswer method
                 break;
             case 'time':
-                // Time freeze would be implemented if we had a timer
-                document.getElementById('message-display').textContent = 'TIME FREEZE ACTIVATED!';
+                // Add 30 seconds to the timer
+                this.timeRemaining += 30;
+                this.updateTimerDisplay();
+                document.getElementById('message-display').textContent = 'TIME FREEZE ACTIVATED! +30 SECONDS';
                 break;
         }
         
@@ -1023,8 +1114,15 @@ class MathRPGGame {
     gameOver() {
         this.isGameOver = true;
         
-        // Update final level display
+        // Clear the timer
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        
+        // Update final level and score display
         document.getElementById('final-level').textContent = this.level;
+        document.getElementById('final-score').textContent = this.correctAnswers;
         
         // Show game over screen
         const gameOverScreen = document.getElementById('game-over');
@@ -1040,11 +1138,17 @@ class MathRPGGame {
         this.level = 1;
         this.heroHealth = this.heroMaxHealth;
         this.isGameOver = false;
+        this.timeRemaining = 120; // Reset timer to 2 minutes
+        this.correctAnswers = 0; // Reset correct answers counter
         
         // Hide game over screen
         const gameOverScreen = document.getElementById('game-over');
         gameOverScreen.classList.add('hidden');
         gameOverScreen.style.display = 'none'; // Force hide with display: none
+        
+        // Reset and start the timer
+        this.updateTimerDisplay();
+        this.startTimer();
         
         // Start new level
         this.startNewLevel();
