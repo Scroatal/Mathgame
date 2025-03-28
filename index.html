@@ -80,6 +80,8 @@
             <div class="top-info">
                 <div id="level-display">Level: <span id="level">1</span></div>
                 <div id="timer-display">Time: <span id="timer">3:00</span></div>
+                <div id="question-timer-display">Answer in: <span id="question-timer">10</span>s</div>
+                <button id="mute-btn" class="icon-btn">🔊</button> <!-- Added Mute Button -->
             </div>
             
             <div id="health-bars">
@@ -134,10 +136,17 @@
         </div>
     </div>
 
+    <!-- Audio Elements -->
+    <audio id="hit-sound-1" src="Punch (1).mp3" preload="auto"></audio>
+    <audio id="hit-sound-2" src="Punch (2).mp3" preload="auto"></audio>
+    <audio id="hit-sound-3" src="Punch (3).mp3" preload="auto"></audio>
+    <audio id="error-sound" src="ERror.mp3" preload="auto"></audio>
+
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
     <script src="mathProblems.js"></script>
     <script src="game.js"></script>
+    <script src="createImprovedCharacters.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

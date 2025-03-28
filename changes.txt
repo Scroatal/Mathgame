@@ -1,61 +1,66 @@
-# Math Game Timer and Score Tracking - Change List
-Date: March 25, 2025
-Time: 5:59 PM (Australia/Sydney, UTC+11:00)
+# Improved Characters Implementation
 
-## Overview
-Added a 2-minute countdown timer and correct answer tracking to the math RPG battle game.
+## Changes Made
 
-## Files Modified
+1. Added the `createImprovedCharacters.js` script to `index.html`
+   - This script contains enhanced 3D models for the hero and monsters
 
-### 1. game.js
-- Added timer properties to the MathRPGGame class constructor (5:35 PM, March 25, 2025):
-  - `this.timeRemaining = 120` (2 minutes in seconds)
-  - `this.timerInterval = null`
-  - `this.correctAnswers = 0`
+2. Modified `game.js` to use the improved character models:
+   - Replaced `this.createCharacters()` with `this.createImprovedCharacters()` in the `init()` method
+   - Replaced `this.createMonsterByOperation()` with `this.createImprovedMonsterByOperation()` in the `startNewLevel()` method
 
-- Added timer methods (5:37 PM, March 25, 2025):
-  - `startTimer()`: Initializes and starts the countdown timer
-  - `updateTimerDisplay()`: Updates the timer UI with formatted time
-  - `timeUp()`: Handles game over when timer reaches zero
+3. Fixed hero animation issue:
+   - Updated the `setupHeroAnimations()` method to store original positions of body parts
+   - Modified animation to use original positions as reference points to prevent floating body parts
 
-- Modified existing methods (5:40 PM, March 25, 2025):
-  - `startGame()`: Reset timer and correct answers counter, initialize timer
-  - `submitAnswer()`: Increment correct answers counter when answer is correct
-  - `gameOver()`: Display correct answers count, clear timer
-  - `restartGame()`: Reset timer and correct answers counter
-  - `returnToMainMenu()`: Clear timer interval
-  - `collectPowerUp()`: Added time power-up functionality (+30 seconds)
-  
-- Changed timer duration from 5 minutes to 2 minutes (5:58 PM, March 25, 2025):
-  - Updated `this.timeRemaining = 300` to `this.timeRemaining = 120` in constructor
-  - Updated `this.timeRemaining = 300` to `this.timeRemaining = 120` in startGame method
-  - Updated `this.timeRemaining = 300` to `this.timeRemaining = 120` in restartGame method
+4. Modified division problem generation:
+   - Removed logic that intentionally created division problems with remainders in 'hard' mode
+   - All division problems now result in whole number answers, regardless of difficulty
 
-### 2. styles.css
-- Added timer warning animation (5:29 PM, March 25, 2025):
-  ```css
-  @keyframes time-warning-flash {
-      0% { color: #ffcc00; }
-      50% { color: #ff0000; }
-      100% { color: #ffcc00; }
-  }
+5. Prevented repeating questions:
+   - Added a history mechanism (`problemHistory`) to `MathProblemGenerator`
+   - The generator now checks the history (last 20 questions) before issuing a new problem
+   - If a duplicate is generated, it attempts to create a new, unique question
 
-  .time-warning {
-      animation: time-warning-flash 0.5s ease-in-out infinite;
-  }
-  ```
+6. Fixed bug introduced in step 5:
+   - Corrected return statements in internal problem generation methods (`...Internal`) in `mathProblems.js`
+   - This resolved an issue where graphics were disappearing due to errors in problem generation logic
 
-## Functional Changes
-1. Timer starts at 2:00 when game begins (Changed from 5:00 at 5:58 PM, March 25, 2025)
-2. Timer counts down every second (Implemented at 5:37 PM, March 25, 2025)
-3. Timer display flashes red when under 30 seconds (Implemented at 5:29 PM, March 25, 2025)
-4. Game ends when timer reaches 0:00 (Implemented at 5:38 PM, March 25, 2025)
-5. Correct answers are tracked and displayed on game over screen (Implemented at 5:40 PM, March 25, 2025)
-6. Time power-up adds 30 seconds to the timer (Implemented at 5:42 PM, March 25, 2025)
-7. Timer and score reset when starting a new game (Implemented at 5:43 PM, March 25, 2025)
+7. Randomized monster appearance:
+   - Modified `startNewLevel` in `game.js` to randomly select a monster type ('addition', 'subtraction', 'multiplication', 'division') for each battle
+   - The monster's appearance is no longer tied to the selected math operation type
 
-## Testing Notes
-- Timer functionality works correctly (Tested at 5:47 PM, March 25, 2025)
-- Score tracking increments with each correct answer (Tested at 5:48 PM, March 25, 2025)
-- Game over screen displays level reached and correct answers (Tested at 5:49 PM, March 25, 2025)
-- Time power-up correctly adds time to the countdown (Tested at 5:50 PM, March 25, 2025)
+8. Added hit feedback:
+   - Implemented `animateMonsterHit` in `game.js` to make the monster briefly shrink when damaged.
+   - Added `<audio>` elements for three hit sounds (`hit-sound-1`, `hit-sound-2`, `hit-sound-3`) to `index.html`.
+   - Updated `playHitSound` method in `game.js` to randomly select and play one of the three hit sounds.
+   - Updated `animateHeroAttack` to trigger the random hit sound and monster shrink animation (`animateMonsterHit`) sequentially when the attack animation completes.
+   - Removed separate monster pain sounds.
+
+9. Added error sound on incorrect answer:
+   - Added `<audio>` element for `ERror.mp3` to `index.html`.
+   - Implemented `playErrorSound` method in `game.js`.
+   - Updated `submitAnswer` to call `playErrorSound` when an answer is incorrect.
+
+## New Features
+
+The improved characters include:
+
+### Hero Character
+- Detailed 3D model with proper body proportions
+- Clothing, face details, and a sword
+- Animated breathing and subtle movements
+
+### Monster Characters
+- Unique themed monsters for each operation type:
+  - Addition: Red flame monster with fire animations
+  - Subtraction: Blue ice monster with crystal animations
+  - Multiplication: Purple arcane monster with magical animations
+  - Division: Green nature monster with plant-like features
+- Boss versions with crowns and enhanced appearances
+- Built-in animations for each monster type
+
+## Technical Improvements
+- Better use of Three.js materials with appropriate roughness and metalness
+- Improved shadow casting for better visual quality
+- Animation system using TWEEN.js for smooth character movements

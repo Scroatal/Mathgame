@@ -17,7 +17,10 @@ class MathRPGGame {
         this.difficulty = 'easy'; // Default difficulty
         this.timeRemaining = 120; // 2 minutes in seconds
         this.timerInterval = null;
+        this.questionTimerInterval = null;
+        this.questionTimeRemaining = 10; // 10 seconds per question
         this.correctAnswers = 0; // Track correct answers
+        this.isMuted = false; // Added mute state
         
         // Three.js components
         this.scene = null;
@@ -32,6 +35,7 @@ class MathRPGGame {
         
         // Initialize the menu
         this.setupMenuEventListeners();
+        this.setupMuteButton(); // Added call to setup mute button listener
     }
     
     /**
@@ -105,6 +109,18 @@ class MathRPGGame {
         // Menu button on game over screen
         document.getElementById('menu-btn').addEventListener('click', () => {
             this.returnToMainMenu();
+        });
+    }
+
+    /**
+     * Set up event listener for the mute button
+     */
+    setupMuteButton() {
+        const muteButton = document.getElementById('mute-btn');
+        muteButton.addEventListener('click', () => {
+            this.isMuted = !this.isMuted;
+            muteButton.textContent = this.isMuted ? '🔇' : '🔊';
+            console.log('Mute state:', this.isMuted);
         });
     }
     
@@ -250,6 +266,87 @@ class MathRPGGame {
         gameOverScreen.classList.remove('hidden');
         gameOverScreen.style.display = 'block'; // Force show with display: block
     }
+
+    /**
+     * Start the question timer
+     */
+    startQuestionTimer() {
+        // Clear any existing timer
+        this.stopQuestionTimer();
+        
+        // Reset time remaining
+        this.questionTimeRemaining = 10;
+        this.updateQuestionTimerDisplay();
+        
+        // Start new timer that updates every second
+        this.questionTimerInterval = setInterval(() => {
+            this.questionTimeRemaining--;
+            this.updateQuestionTimerDisplay();
+            
+            // Check if time is up
+            if (this.questionTimeRemaining <= 0) {
+                this.questionTimeUp();
+            }
+        }, 1000);
+    }
+    
+    /**
+     * Stop the question timer
+     */
+    stopQuestionTimer() {
+        if (this.questionTimerInterval) {
+            clearInterval(this.questionTimerInterval);
+            this.questionTimerInterval = null;
+        }
+    }
+    
+    /**
+     * Update the question timer display
+     */
+    updateQuestionTimerDisplay() {
+        // Update the timer display
+        document.getElementById('question-timer').textContent = this.questionTimeRemaining;
+        
+        // Add warning class if time is running low (less than 5 seconds)
+        if (this.questionTimeRemaining <= 5) {
+            document.getElementById('question-timer-display').classList.add('time-warning');
+        } else {
+            document.getElementById('question-timer-display').classList.remove('time-warning');
+        }
+    }
+    
+    /**
+     * Handle question timer running out
+     */
+    questionTimeUp() {
+        this.stopQuestionTimer();
+        
+        // Deduct 2 health
+        this.heroHealth = Math.max(0, this.heroHealth - 2);
+        this.updateHealthBars();
+        
+        // Play punch sound
+        this.playHitSound();
+        
+        // Show message
+        document.getElementById('message-display').textContent = "TOO SLOW! -2 HP";
+        document.getElementById('message-display').classList.add('incorrect-answer');
+        setTimeout(() => {
+            document.getElementById('message-display').classList.remove('incorrect-answer');
+        }, 500);
+        
+        // Generate new problem if game is still active
+        if (!this.isGameOver && this.monsterHealth > 0) {
+            const problem = this.problemGenerator.generateProblem(this.level);
+            document.getElementById('problem-text').textContent = problem.displayText;
+            this.startQuestionTimer();
+        }
+        
+        // Check if hero is defeated
+        if (this.heroHealth <= 0) {
+            this.gameOver();
+        }
+    }
     
     /**
      * Return to the main menu
@@ -303,7 +400,7 @@ class MathRPGGame {
     init() {
         this.setupThreeJS();
         this.createScene();
-        this.createCharacters();
+        this.createImprovedCharacters();
         this.setupGameEventListeners();
         this.startNewLevel();
         this.animate();
@@ -702,6 +799,9 @@ class MathRPGGame {
         // Check if it's a boss level
         const isBoss = this.isBossLevel();
         
+        // Start question timer
+        this.startQuestionTimer();
+        
         // Calculate monster health based on level (boss monsters have double health)
         this.monsterMaxHealth = 20 + (this.level * 10);
         if (isBoss) {
@@ -732,7 +832,10 @@ class MathRPGGame {
         if (this.monster) {
             this.scene.remove(this.monster);
         }
-        this.monster = this.createMonsterByOperation(this.selectedOperation, isBoss);
+        // Randomly select a monster type for each battle
+        const monsterTypes = ['addition', 'subtraction', 'multiplication', 'division'];
+        const randomMonsterType = monsterTypes[Math.floor(Math.random() * monsterTypes.length)];
+        this.monster = this.createImprovedMonsterByOperation(randomMonsterType, isBoss);
         this.monster.position.set(3, 0, 0);
         this.scene.add(this.monster);
         
@@ -850,6 +953,9 @@ class MathRPGGame {
     submitAnswer() {
         if (this.isGameOver) return;
         
+        // Stop question timer
+        this.stopQuestionTimer();
+        
         const userAnswer = document.getElementById('answer-input').value.trim();
         
         // Validate input
@@ -912,7 +1018,7 @@ class MathRPGGame {
                 document.getElementById('message-display').classList.remove('correct-answer');
             }, 500);
             
-            // Animate hero attack
+            // Animate hero attack (which will trigger hit sound and monster reaction on complete)
             this.animateHeroAttack();
             
             // Check if monster is defeated
@@ -930,6 +1036,7 @@ class MathRPGGame {
         } else {
             // Reset consecutive correct counter
             this.consecutiveCorrect = 0;
+            this.playErrorSound(); // Play error sound for wrong answer
             
             // Check for active power-ups that might help with wrong answers
             if (this.powerUp && this.powerUp.active && this.powerUp.type === 'health') {
@@ -1175,6 +1282,11 @@ class MathRPGGame {
                 })
                 .onComplete(() => {
                     console.log('Forward tween complete, starting backward tween');
+                    // Play hit sound and trigger monster reaction when attack connects
+                    this.playHitSound(); 
+                    this.animateMonsterHit(); 
+                    // Removed call to playRandomPainSound();
+                    
                     // Move back
                     const moveBack = { x: targetPosition };
                     new TWEEN.Tween(moveBack)
@@ -1207,6 +1319,60 @@ class MathRPGGame {
                 this.monster.visible = false;
             })
             .start();
+    }
+
+    /**
+     * Animate monster getting hit (shrink effect)
+     */
+    animateMonsterHit() {
+        if (!this.monster) return;
+
+        const originalScale = this.monster.scale.x; // Assuming uniform scaling
+        const hitScale = originalScale * 0.8; // Shrink to 80%
+
+        const shrinkTween = new TWEEN.Tween(this.monster.scale)
+            .to({ x: hitScale, y: hitScale, z: hitScale }, 100) // Quick shrink
+            .easing(TWEEN.Easing.Quadratic.Out);
+
+        const growTween = new TWEEN.Tween(this.monster.scale)
+            .to({ x: originalScale, y: originalScale, z: originalScale }, 150) // Grow back
+            .easing(TWEEN.Easing.Bounce.Out);
+
+        shrinkTween.chain(growTween); // Grow back after shrinking
+        shrinkTween.start();
+    }
+
+    /**
+     * Play a random hit sound effect
+     */
+    playHitSound() {
+        if (this.isMuted) return; // Don't play if muted
+
+        const hitSoundIds = ['hit-sound-1', 'hit-sound-2', 'hit-sound-3'];
+        const randomSoundId = hitSoundIds[Math.floor(Math.random() * hitSoundIds.length)];
+        const hitSound = document.getElementById(randomSoundId);
+
+        if (hitSound) {
+            hitSound.currentTime = 0; // Rewind to start if already playing
+            hitSound.play().catch(error => console.error("Error playing hit sound:", error));
+        } else {
+            console.warn(`Hit sound element not found: ${randomSoundId}`);
+        }
+    }
+
+    /**
+     * Play the error sound effect
+     */
+    playErrorSound() {
+        if (this.isMuted) return; // Don't play if muted
+
+        const errorSound = document.getElementById('error-sound');
+        if (errorSound) {
+            errorSound.currentTime = 0; // Rewind to start
+            errorSound.play().catch(error => console.error("Error playing error sound:", error));
+        } else {
+            console.warn(`Error sound element not found: error-sound`);
+        }
     }
     
     /**

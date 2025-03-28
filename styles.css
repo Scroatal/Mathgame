@@ -116,10 +116,28 @@ body {
     margin-bottom: 20px;
 }
 
+.icon-btn { /* Style for the mute button */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
 #timer-display {
     font-size: 24px;
     text-shadow: 2px 2px 0 #000;
     color: #ffcc00;
+    margin-right: 20px;
+}
+
+#question-timer-display {
+    font-size: 24px;
+    text-shadow: 2px 2px 0 #000;
+    color: #ffcc00;
+    margin-right: 20px;
 }
 
 /* High Score Styles */

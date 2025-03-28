@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Challenge!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+        
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        }
+        /* ... (rest of existing CSS remains the same) ... */
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="webgl-error">
+            Your browser doesn't support this game. Try Chrome or Firefox!
+        </div>
+        <div id="ui">
+            <h1>Dice Challenge!</h1>
+            <div id="current-player">Player 1's turn</div>
+            <div id="current-number">100</div>
+            <div class="button-group">
+                <button id="roll-btn">🎲 Roll!</button>
+                <button id="reset-btn">🔄 Reset</button>
+            </div>
+        </div>
+        <canvas id="scene"></canvas>
+        <div id="confetti-container"></div>
+    </div>
+
+    <!-- Add tween.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/@tweenjs/tween.js@18.6.4/dist/tween.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cannon@0.6.2/build/cannon.min.js"></script>
+    <script src="deathroll.js"></script>
+</body>
+</html>
